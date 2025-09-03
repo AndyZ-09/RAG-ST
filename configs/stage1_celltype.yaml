@@ -1,0 +1,49 @@
+# configs/stage1_celltype.yaml
+# Configuration for Stage 1: Cell Type Classification
+
+model:
+  vision_encoder:
+    backbone: "vit-base"
+    pretrained: true
+    freeze_layers: 0
+    output_dim: 768
+  
+  cell_type_classifier:
+    input_dim: 768
+    num_cell_types: 100  # Adjust based on your dataset
+    hidden_dims: [512, 256]
+
+data:
+  data_dir: "data/hest"
+  image_size: 224
+  max_genes: 2000
+  normalize_expression: true
+  batch_size: 32
+  train_batch_size: 64
+  num_workers: 8
+  cell_type_mapping: null  # Will be loaded from data
+
+training:
+  stage1_epochs: 50
+  stage1_lr: 5e-4
+  weight_decay: 1e-4
+  log_interval: 100
+  use_correlation_loss: false
+
+# CellxGene reference data configuration  
+cellxgene:
+  data_dir: "data/cellxgene"
+  tissue_types: ["liver", "lung", "brain", "heart"]
+  cell_types: null  # Use all available
+  max_genes: 2000
+  max_cells_per_type: 1000
+
+# Output and logging
+output_dir: "outputs/stage1_celltype"
+use_wandb: false
+wandb_project: "rag-st"
+experiment_name: "stage1_celltype_classification"
+
+# Hardware
+device: "cuda"
+mixed_precision: true

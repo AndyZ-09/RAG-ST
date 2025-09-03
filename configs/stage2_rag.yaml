@@ -1,0 +1,69 @@
+# configs/stage2_rag.yaml
+# Configuration for Stage 2: Retrieval-Augmented Generation
+
+model:
+  vision_encoder:
+    backbone: "vit-base"
+    pretrained: true
+    freeze_layers: 6  # Freeze more layers in stage 2
+    output_dim: 768
+  
+  cell_type_classifier:
+    input_dim: 768
+    num_cell_types: 100
+    hidden_dims: [512, 256]
+  
+  generator:
+    image_dim: 768
+    scrna_dim: 2000
+    output_dim: 2000
+    hidden_dim: 512
+    num_heads: 8
+    num_layers: 6
+    dropout: 0.1
+
+# Retrieval configuration
+retrieval_top_k: 10
+use_retrieval: true
+
+data:
+  data_dir: "data/hest"
+  image_size: 224
+  max_genes: 2000
+  normalize_expression: true
+  batch_size: 16  # Smaller batch size for stage 2
+  train_batch_size: 32
+  num_workers: 8
+
+training:
+  stage1_epochs: 0  # Skip stage 1, load pretrained
+  stage2_epochs: 100
+  stage1_lr: 5e-4  # Not used
+  stage2_lr: 1e-4
+  weight_decay: 1e-4
+  log_interval: 50
+  use_correlation_loss: true
+
+# Load pretrained stage 1 model
+pretrained_stage1: "outputs/stage1_celltype/best_model.pth"
+
+cellxgene:
+  data_dir: "data/cellxgene"
+  tissue_types: ["liver", "lung", "brain", "heart", "kidney", "pancreas"]
+  cell_types: null
+  max_genes: 2000
+  max_cells_per_type: 2000  # More cells for better retrieval
+
+output_dir: "outputs/stage2_rag"
+use_wandb: true
+wandb_project: "rag-st"
+experiment_name: "stage2_retrieval_augmented_generation"
+
+device: "cuda"
+mixed_precision: true
+
+# Evaluation settings
+evaluation:
+  save_predictions: true
+  create_visualizations: true
+  compute_biological_metrics: true
